@@ -1,0 +1,73 @@
+#:import MapView kivy.garden.mapview.MapView
+# :import GpsBlinker gpsblinker.GpsBlinker
+
+<GpsBlinker>:
+    default_blink_size: 25
+    blink_size: 25
+    outer_opacity: 1
+    canvas.before:
+        # outer circle
+        Color:
+            rgba: app.theme_cls.primary_color[:3] + [root.outer_opacity]
+        RoundedRectangle:
+            radius: [root.blink_size/2.0,]
+            size: [root.blink_size, root.blink_size]
+            pos: root.pos[0] + root.size[0]/2.0 - root.blink_size/2.0, root.pos[1] + root.size[1]/2.0 - root.blink_size/2.0
+        #inner circle
+        Color:
+            rgb: .17, .50, .78, .6
+        RoundedRectangle:
+            radius: [root.default_blink_size/2.0, ]
+            size: [root.default_blink_size, root.default_blink_size]
+            pos: root.pos[0] + root.size[0]/2.0 - root.default_blink_size/2.0, root.pos[1] + root.size[1]/2.0 - root.default_blink_size/2.0
+
+<MapMarkerClass>:
+    popup_size: dp(280), dp(130)
+    Bubble:
+        BoxLayout:
+            orientation: "horizontal"
+            padding: dp(1)
+            Image:
+                source: root.image_src
+                mipmap: True
+            BoxLayout:
+                orientation: "vertical"
+                Label:
+                    text: "[b]{}[/b]".format(root.label_one)
+                    markup: True
+                    halign: "center"
+                    # size_hint_y: None
+                    text_size: self.width, None
+                    height: self.texture_size[1]
+                Label:
+                    text: root.label_two
+                    markup: True
+                    halign: "center"
+                    # size_hint_y: None
+                    text_size: self.width, None
+                    height: self.texture_size[1]
+
+<MapViewClass>:
+    lat: 4.1587278341067755
+    lon: 9.28267375685355
+    zoom: 13
+    on_zoom:
+        self.zoom = 10 if self.zoom < 10 else self.zoom
+    on_lat:
+        self.start_getting_markers_in_fov()
+    on_lon:
+        self.start_getting_markers_in_fov()
+    GpsBlinker:
+        id: blinker
+        source: "transparent.png"
+    # LineMapLayer:
+    #     id: map_line
+
+MDBoxLayout:
+    orientation: 'vertical'
+    MapViewClass:
+        id: mapview
+    MDRaisedButton:
+        text: "Get Directions"
+        pos_hint: {'center_x':.5 , 'y':1 }
+        on_release: root.ids.mapview.get_directions("4.1506595505986645,9.30054799695078", "4.149289860272598,9.261988560666916")
